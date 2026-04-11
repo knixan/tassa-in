@@ -1,75 +1,78 @@
-# React + TypeScript + Vite
+# Tassa in! – Professionell djurvård
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Webbapp för djurvårdsalongen Tassa in! med bokningssystem för hundar och katter.
 
-Currently, two official plugins are available:
+## Tech Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+**Frontend**
+- React 19 + TypeScript
+- Vite 8
+- TanStack Router (filbaserad routing)
+- Tailwind CSS v4
+- shadcn/ui (Radix UI)
 
-## React Compiler
+**Backend**
+- .NET 10 (ASP.NET Core Web API)
+- PostgreSQL
+- Entity Framework Core 10
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+## Kom igång
 
-Note: This will impact Vite dev & build performances.
+### Krav
 
-## Expanding the ESLint configuration
+- Node.js 20+
+- .NET 10 SDK
+- PostgreSQL (kör lokalt eller via Docker)
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### Frontend
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Körs på `http://localhost:5173`.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### Backend
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+cd MyApi
+dotnet ef database update
+dotnet run
 ```
+
+Körs på `http://localhost:5295`.
+
+### Databas
+
+Standardanslutning i `MyApi/appsettings.json`:
+
+```
+Host=localhost;Database=tassa_in;Username=postgres;Password=postgres
+```
+
+Ändra vid behov. Kör sedan:
+
+```bash
+cd MyApi
+dotnet ef migrations add <MigrationName>
+dotnet ef database update
+```
+
+## Sidor
+
+| Route | Beskrivning |
+|-------|-------------|
+| `/` | Startsida med hero, tjänsteöversikt och bokningssystem |
+| `/tjanster` | Alla tjänster med priser |
+| `/om-oss` | Om salongen och teamet |
+| `/boka` | Separat bokningssida |
+
+## API-endpoints
+
+| Metod | Endpoint | Beskrivning |
+|-------|----------|-------------|
+| `GET` | `/api/bookings/available?date=YYYY-MM-DD` | Returnerar lediga tidsluckor för ett datum |
+| `POST` | `/api/bookings` | Skapar en bokning |
+
+Öppettider för bokning: **15:00–19:00** (en timme per tid).
