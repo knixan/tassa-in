@@ -26,6 +26,7 @@ dist-ssr
 # Secrets
 .env
 .env.*
+MyApi/appsettings.json
 MyApi/appsettings.Development.json
 
 # .NET build artifacts
