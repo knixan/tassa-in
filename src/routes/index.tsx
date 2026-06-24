@@ -1,35 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Scissors, Bath, Heart, Sparkles, Dog, Cat, CheckCircle } from "lucide-react";
 import heroImage from "@/assets/hero-pets.jpg";
-
-const API_URL = import.meta.env.VITE_API_URL as string;
-
-const ALL_SLOTS = [
-  { hour: 15, label: "15:00–16:00" },
-  { hour: 16, label: "16:00–17:00" },
-  { hour: 17, label: "17:00–18:00" },
-  { hour: 18, label: "18:00–19:00" },
-];
-
-const SERVICES = [
-  "Bad & Tvätt",
-  "Klippning",
-  "Pälsvård",
-  "Kloklippning",
-  "Tassbehandling",
-  "VIP-paket",
-];
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -45,354 +15,173 @@ export const Route = createFileRoute("/")({
         property: "og:description",
         content: "Vi tar hand om din fyrbenta vän med kärlek och omsorg.",
       },
+      { property: "og:image", content: heroImage },
+      { name: "twitter:image", content: heroImage },
     ],
   }),
   component: HomePage,
 });
 
-const services = [
-  {
-    icon: Bath,
-    title: "Bad & Tvätt",
-    desc: "Skonsam tvätt med naturliga produkter anpassade för din husdjurs päls.",
-  },
-  {
-    icon: Scissors,
-    title: "Klippning",
-    desc: "Professionell pälsklippning för alla raser och pälstyper.",
-  },
-  {
-    icon: Sparkles,
-    title: "Pälsvård",
-    desc: "Borsting, filtborttagning och behandling för en frisk och glänsande päls.",
-  },
-  {
-    icon: Heart,
-    title: "Kloklippning",
-    desc: "Varsam kloklippning för att hålla din vän bekväm och glad.",
-  },
-];
-
-function scrollToBooking() {
-  document.getElementById("boka-sektion")?.scrollIntoView({ behavior: "smooth" });
-}
-
-function BookingSection() {
-  const today = new Date().toISOString().split("T")[0];
-  const [date, setDate] = useState("");
-  const [availableSlots, setAvailableSlots] = useState<number[]>([]);
-  const [loadingSlots, setLoadingSlots] = useState(false);
-  const [selectedSlot, setSelectedSlot] = useState<number | null>(null);
-  const [form, setForm] = useState({ name: "", email: "", phone: "", service: "" });
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState("");
-  const [confirmed, setConfirmed] = useState(false);
-
-  useEffect(() => {
-    if (!date) return;
-    setSelectedSlot(null);
-    setAvailableSlots([]);
-    setLoadingSlots(true);
-    fetch(`${API_URL}/api/bookings/available?date=${date}`)
-      .then((r) => r.json())
-      .then((data) => setAvailableSlots(data.availableSlots ?? []))
-      .catch(() => setError("Kunde inte hämta lediga tider."))
-      .finally(() => setLoadingSlots(false));
-  }, [date]);
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!selectedSlot) return;
-    setSubmitting(true);
-    setError("");
-    try {
-      const res = await fetch(`${API_URL}/api/bookings`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: form.name,
-          email: form.email,
-          phone: form.phone,
-          service: form.service,
-          bookingDate: date,
-          timeSlot: selectedSlot,
-        }),
-      });
-      if (!res.ok) {
-        const data = await res.json();
-        setError(data.error ?? "Något gick fel. Försök igen.");
-        return;
-      }
-      setConfirmed(true);
-    } catch {
-      setError("Kunde inte ansluta till servern.");
-    } finally {
-      setSubmitting(false);
-    }
-  }
-
-  if (confirmed) {
-    return (
-      <div className="flex flex-col items-center justify-center py-16 text-center">
-        <CheckCircle className="h-16 w-16 text-primary mb-6" />
-        <h3 className="font-heading text-2xl font-bold text-foreground">
-          Bokning bekräftad!
-        </h3>
-        <p className="mt-3 text-muted-foreground max-w-sm">
-          Vi har tagit emot din bokning för{" "}
-          <strong>
-            {ALL_SLOTS.find((s) => s.hour === selectedSlot)?.label}
-          </strong>{" "}
-          den <strong>{date}</strong>. Vi ses!
-        </p>
-        <Button
-          className="mt-8"
-          onClick={() => {
-            setConfirmed(false);
-            setDate("");
-            setSelectedSlot(null);
-            setForm({ name: "", email: "", phone: "", service: "" });
-          }}
-        >
-          Boka en till tid
-        </Button>
-      </div>
-    );
-  }
-
+function HomePage() {
   return (
-    <form onSubmit={handleSubmit} className="space-y-8">
-      {/* Date */}
-      <div className="space-y-2">
-        <Label htmlFor="booking-date">Välj datum</Label>
-        <Input
-          id="booking-date"
-          type="date"
-          min={today}
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
-          required
-          className="max-w-xs"
-        />
-      </div>
+    <div className="bg-background text-foreground selection:bg-accent overflow-x-hidden">
+      <div className="mx-auto max-w-7xl px-6 py-12">
 
-      {/* Time slots */}
-      {date && (
-        <div className="space-y-3">
-          <Label>Välj tid</Label>
-          {loadingSlots ? (
-            <p className="text-sm text-muted-foreground">Hämtar lediga tider…</p>
-          ) : (
-            <div className="flex flex-wrap gap-3">
-              {ALL_SLOTS.map((slot) => {
-                const available = availableSlots.includes(slot.hour);
-                const selected = selectedSlot === slot.hour;
-                return (
-                  <button
-                    key={slot.hour}
-                    type="button"
-                    disabled={!available}
-                    onClick={() => setSelectedSlot(slot.hour)}
-                    className={[
-                      "rounded-xl border px-5 py-3 text-sm font-medium transition-all",
-                      available
-                        ? selected
-                          ? "border-primary bg-primary text-primary-foreground shadow"
-                          : "border-border bg-card text-foreground hover:border-primary/50 hover:bg-secondary"
-                        : "border-border bg-muted text-muted-foreground cursor-not-allowed line-through opacity-50",
-                    ].join(" ")}
-                  >
-                    {slot.label}
-                    {!available && (
-                      <span className="ml-2 text-xs">Bokad</span>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Contact form — show after slot selected */}
-      {selectedSlot && (
-        <div className="space-y-6 rounded-2xl border border-border bg-card p-6">
-          <h3 className="font-heading text-lg font-semibold text-foreground">
-            Dina uppgifter
-          </h3>
-
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="name">Namn</Label>
-              <Input
-                id="name"
-                placeholder="Anna Andersson"
-                value={form.name}
-                onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="email">E-post</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="anna@example.se"
-                value={form.email}
-                onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="phone">Telefon</Label>
-              <Input
-                id="phone"
-                type="tel"
-                placeholder="070-123 45 67"
-                value={form.phone}
-                onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="service">Tjänst</Label>
-              <Select
-                required
-                value={form.service}
-                onValueChange={(v) => setForm((f) => ({ ...f, service: v }))}
+        {/* HERO — Split Screen */}
+        <section className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-24">
+          <div className="relative z-10">
+            <span className="inline-flex items-center font-heading px-4 py-1 rounded-full border border-foreground/20 text-xs font-bold uppercase tracking-widest mb-6">
+              Mjölbys mysigaste djurspa
+            </span>
+            <h1 className="font-heading text-7xl lg:text-[9rem] font-black leading-[0.85] mb-8 tracking-tighter">
+              TASSA
+              <span className="text-accent block">IN!</span>
+            </h1>
+            <p className="text-xl max-w-md mb-10 text-foreground/80 leading-relaxed font-medium">
+              Professionell pälsvård för din pälskling i en lugn miljö där din väns välmående alltid kommer först.
+            </p>
+            <div className="flex flex-wrap gap-4 items-center">
+              <Link
+                to="/boka"
+                className="bg-foreground text-background px-10 py-5 rounded-full font-heading font-bold text-lg hover:scale-105 transition-transform"
               >
-                <SelectTrigger id="service">
-                  <SelectValue placeholder="Välj tjänst" />
-                </SelectTrigger>
-                <SelectContent>
-                  {SERVICES.map((s) => (
-                    <SelectItem key={s} value={s}>
-                      {s}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                Boka tid
+              </Link>
+              <Link
+                to="/tjanster"
+                className="px-8 py-5 rounded-full font-heading font-bold text-lg border-2 border-foreground hover:bg-foreground hover:text-background transition-colors"
+              >
+                Våra tjänster
+              </Link>
             </div>
           </div>
 
-          {error && (
-            <p className="rounded-lg bg-destructive/10 px-4 py-2 text-sm text-destructive">
-              {error}
-            </p>
-          )}
+          <div className="relative">
+            <div className="absolute -top-10 -left-10 w-40 h-40 bg-accent/50 rounded-full blur-3xl" />
+            <div className="aspect-[4/5] bg-secondary rounded-[60px] overflow-hidden relative rotate-2 border-4 border-background shadow-2xl">
+              <img
+                src={heroImage}
+                alt="Glad hund och katt hos Tassa in!"
+                className="w-full h-full object-cover"
+                loading="eager"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-foreground/30 to-transparent" />
+            </div>
 
-          <Button type="submit" size="lg" className="w-full" disabled={submitting}>
-            {submitting ? "Bokar…" : `Bekräfta bokning ${ALL_SLOTS.find((s) => s.hour === selectedSlot)?.label}`}
-          </Button>
-        </div>
-      )}
-    </form>
+            {/* Floating sticker */}
+            <div className="absolute -top-6 -right-4 w-28 h-28 bg-secondary rounded-full flex items-center justify-center text-center p-3 text-[10px] font-heading font-bold uppercase leading-tight rotate-12 border border-foreground/10 shadow-lg">
+              15% rabatt<br />första besöket
+            </div>
+
+            {/* Rotating badge */}
+            <div className="absolute bottom-8 -left-8 w-32 h-32 bg-background rounded-full shadow-xl flex items-center justify-center -rotate-12 border-4 border-card">
+              <svg viewBox="0 0 100 100" className="w-28 h-28 animate-spin-slow">
+                <defs>
+                  <path id="circlePath" d="M 50,50 m -37,0 a 37,37 0 1,1 74,0 a 37,37 0 1,1 -74,0" />
+                </defs>
+                <text fontFamily="sans-serif" fontWeight="800" fontSize="11" fill="currentColor" className="text-foreground">
+                  <textPath href="#circlePath">TASSA IN • DJURSPA • SEDAN 2020 • TASSA IN • DJURSPA •</textPath>
+                </text>
+              </svg>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-2.5 h-2.5 bg-foreground rounded-full" />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Services */}
+        <section className="mb-24">
+          <div className="flex flex-col lg:flex-row justify-between lg:items-end mb-16 gap-4">
+            <h2 className="font-heading text-5xl lg:text-6xl font-black tracking-tighter leading-none">
+              Tjänster för<br />alla tassar.
+            </h2>
+            <p className="max-w-xs text-sm font-semibold text-foreground/50 italic uppercase tracking-widest">
+              Vi skräddarsyr varje behandling efter ditt djurs unika behov och pälstyp.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <ServiceCard
+              title="Fullständig trim"
+              desc="Bad, fön, klippning och styling enligt rasstandard eller specifika önskemål."
+              shape="rounded-[40px]"
+              dotOpacity="opacity-100"
+            />
+            <ServiceCard
+              title="Lyx-spa"
+              desc="Djuprengörande schamponering, avslappnande massage och fuktgivande inpackning."
+              shape="rounded-[120px_40px_40px_40px] md:mt-12"
+              dotOpacity="opacity-60"
+            />
+            <ServiceCard
+              title="Kloklipp"
+              desc="Snabbt och tryggt. Vi ser till att klorna hålls i perfekt längd för optimal tasshälsa."
+              shape="rounded-[40px_120px_40px_40px]"
+              dotOpacity="opacity-30"
+            />
+          </div>
+
+          <div className="mt-12">
+            <Link
+              to="/tjanster"
+              className="inline-flex items-center gap-2 font-heading font-bold uppercase text-sm tracking-widest border-b-2 border-foreground pb-1 hover:gap-4 transition-all"
+            >
+              Se alla tjänster →
+            </Link>
+          </div>
+        </section>
+
+        {/* CTA */}
+        <section className="relative bg-secondary rounded-[60px] lg:rounded-[80px] p-12 lg:p-32 overflow-hidden text-center">
+          <div
+            className="absolute inset-0 opacity-15 pointer-events-none"
+            style={{
+              backgroundImage: "radial-gradient(currentColor 1px, transparent 1px)",
+              backgroundSize: "32px 32px",
+              color: "var(--foreground)",
+            }}
+          />
+          <div className="relative z-10">
+            <h2 className="font-heading text-5xl lg:text-8xl font-black tracking-tighter mb-10 leading-none">
+              Redo för lite <br />
+              <span className="italic font-normal">pälskärlek?</span>
+            </h2>
+            <p className="text-lg lg:text-2xl mb-14 max-w-2xl mx-auto font-medium text-foreground/80">
+              Boka ditt besök online på bara några sekunder. Vi ser fram emot att träffa dig och din bästa vän!
+            </p>
+            <Link
+              to="/boka"
+              className="inline-block bg-foreground text-background px-14 py-7 rounded-full font-heading font-black text-xl hover:scale-105 transition-all shadow-xl"
+            >
+              Hitta lediga tider nu
+            </Link>
+          </div>
+        </section>
+
+      </div>
+    </div>
   );
 }
 
-function HomePage() {
+function ServiceCard({
+  title,
+  desc,
+  shape,
+  dotOpacity,
+}: {
+  title: string;
+  desc: string;
+  shape: string;
+  dotOpacity: string;
+}) {
   return (
-    <div>
-      {/* Hero */}
-      <section className="relative overflow-hidden">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid min-h-[85vh] grid-cols-1 items-center gap-8 py-16 lg:grid-cols-2 lg:gap-16">
-            <div className="order-2 lg:order-1">
-              <div className="inline-flex items-center gap-2 rounded-full bg-secondary px-4 py-1.5 text-sm text-secondary-foreground mb-6">
-                <Dog className="h-4 w-4" />
-                <span>Hundar</span>
-                <span className="text-border">•</span>
-                <Cat className="h-4 w-4" />
-                <span>Katter</span>
-              </div>
-              <h1 className="font-heading text-4xl font-bold leading-tight tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-                Din vän förtjänar{" "}
-                <span className="text-primary">det bästa</span>
-              </h1>
-              <p className="mt-6 text-lg leading-relaxed text-muted-foreground max-w-lg">
-                Professionell djurvård med kärlek och omsorg. Vi tvättar, klipper
-                och pysslar om din fyrbenta familjemedlem så att den alltid mår som
-                bäst.
-              </p>
-              <div className="mt-8 flex flex-wrap gap-4">
-                <Button size="lg" variant="default" onClick={scrollToBooking}>
-                  Boka tid
-                </Button>
-                <Button asChild size="lg" variant="outline">
-                  <Link to="/tjanster">Våra tjänster</Link>
-                </Button>
-              </div>
-            </div>
-
-            <div className="order-1 lg:order-2 flex justify-center">
-              <div className="relative w-full max-w-lg">
-                <div className="absolute -inset-4 rounded-3xl bg-accent/40 blur-2xl" />
-                <img
-                  src={heroImage}
-                  alt="Glad hund och katt hos Tassa in! djurvård"
-                  className="relative rounded-2xl shadow-2xl object-cover w-full aspect-square"
-                  loading="eager"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Services preview */}
-      <section className="bg-card py-20">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-14">
-            <h2 className="font-heading text-3xl font-bold text-foreground sm:text-4xl">
-              Våra tjänster
-            </h2>
-            <p className="mt-4 text-muted-foreground max-w-2xl mx-auto">
-              Vi erbjuder ett brett utbud av tjänster för att hålla din hund eller
-              katt i toppform.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {services.map((s) => (
-              <div
-                key={s.title}
-                className="group rounded-xl border border-border bg-background p-6 transition-all hover:shadow-lg hover:border-primary/30 hover:-translate-y-1"
-              >
-                <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-secondary text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
-                  <s.icon className="h-6 w-6" />
-                </div>
-                <h3 className="font-heading text-lg font-semibold text-foreground">
-                  {s.title}
-                </h3>
-                <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-                  {s.desc}
-                </p>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-10 text-center">
-            <Button asChild variant="default" size="lg">
-              <Link to="/tjanster">Se alla tjänster</Link>
-            </Button>
-          </div>
-        </div>
-      </section>
-
-      {/* Booking section */}
-      <section id="boka-sektion" className="py-20">
-        <div className="mx-auto max-w-2xl px-4 sm:px-6">
-          <div className="text-center mb-10">
-            <h2 className="font-heading text-3xl font-bold text-foreground sm:text-4xl">
-              Boka tid
-            </h2>
-            <p className="mt-4 text-muted-foreground">
-              Välj ett datum och en ledig tid. Vi är öppna 15:00–19:00.
-            </p>
-          </div>
-          <BookingSection />
-        </div>
-      </section>
+    <div className={`bg-card p-10 lg:p-12 border border-foreground/5 hover:bg-secondary transition-all duration-500 group cursor-pointer ${shape}`}>
+      <div className="w-14 h-14 bg-background rounded-2xl mb-10 flex items-center justify-center group-hover:bg-card transition-colors">
+        <div className={`w-4 h-4 bg-foreground rounded-full ${dotOpacity}`} />
+      </div>
+      <h3 className="font-heading text-3xl font-extrabold mb-4 tracking-tight">{title}</h3>
+      <p className="text-lg text-foreground/70 group-hover:text-foreground leading-relaxed">{desc}</p>
     </div>
   );
 }
