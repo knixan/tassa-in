@@ -1,5 +1,7 @@
 # Tassa in! – Djurvård
 
+![Tassa in!](public/tassa-in.png)
+
 Bokningssystem för djurvård. Monorepo med React Vite (frontend) och ASP.NET Core 10 (backend API).
 
 ---

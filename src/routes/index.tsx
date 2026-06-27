@@ -27,20 +27,67 @@ function HomePage() {
     <div className="bg-background text-foreground selection:bg-accent overflow-x-hidden">
       <div className="mx-auto max-w-7xl px-6 py-12">
 
-        {/* HERO — Split Screen */}
-        <section className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-24">
+        {/* HERO MOBIL */}
+        <section className="lg:hidden flex flex-col items-center text-center gap-5 pt-4 mb-16">
+          <h1 className="font-heading text-[5.5rem] font-black leading-[0.85] tracking-tighter">
+            TASSA
+            <span className="text-accent block">IN!</span>
+          </h1>
+
+          <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-card border border-border text-xs font-heading font-bold uppercase tracking-wide shadow-sm">
+            <span className="w-1.5 h-1.5 rounded-full bg-foreground inline-block" />
+            15% rabatt första besöket
+          </span>
+
+          <div className="w-full px-2 relative">
+            <div className="aspect-3/3 bg-secondary rounded-[32px] overflow-hidden border-4 border-background shadow-2xl">
+              <img
+                src={heroImage}
+                alt="Glad hund och katt hos Tassa in!"
+                className="w-full h-full object-cover"
+                loading="eager"
+              />
+            </div>
+          </div>
+
+          <span className="inline-flex items-center font-heading px-4 py-1.5 rounded-full border border-foreground/20 text-xs font-bold uppercase tracking-widest">
+            Mjölbys mysigaste djurspa
+          </span>
+
+          <p className="text-base max-w-xs text-foreground/80 leading-relaxed font-medium">
+            Professionell pälsvård för din pälskling i en lugn miljö där din väns välmående alltid kommer först.
+          </p>
+
+          <div className="flex gap-3 flex-wrap justify-center">
+            <Link
+              to="/boka"
+              className="bg-foreground text-background px-8 py-4 rounded-full font-heading font-bold text-base hover:scale-105 transition-transform"
+            >
+              Boka tid
+            </Link>
+            <Link
+              to="/tjanster"
+              className="px-7 py-4 rounded-full font-heading font-bold text-base border-2 border-foreground hover:bg-foreground hover:text-background transition-colors"
+            >
+              Våra tjänster
+            </Link>
+          </div>
+        </section>
+
+        {/* HERO DESKTOP */}
+        <section className="hidden lg:grid lg:grid-cols-2 gap-16 items-center min-h-[88vh] mb-24">
           <div className="relative z-10">
-            <span className="inline-flex items-center font-heading px-4 py-1 rounded-full border border-foreground/20 text-xs font-bold uppercase tracking-widest mb-6">
+            <span className="inline-flex items-center font-heading px-4 py-1 rounded-full border border-foreground/20 text-xs font-bold uppercase tracking-widest mb-5">
               Mjölbys mysigaste djurspa
             </span>
-            <h1 className="font-heading text-7xl lg:text-[9rem] font-black leading-[0.85] mb-8 tracking-tighter">
+            <h1 className="font-heading text-8xl xl:text-[9rem] 2xl:text-[11rem] font-black leading-[0.85] mb-6 tracking-tighter">
               TASSA
               <span className="text-accent block">IN!</span>
             </h1>
-            <p className="text-xl max-w-md mb-10 text-foreground/80 leading-relaxed font-medium">
+            <p className="text-lg max-w-md mb-8 text-foreground/80 leading-relaxed font-medium">
               Professionell pälsvård för din pälskling i en lugn miljö där din väns välmående alltid kommer först.
             </p>
-            <div className="flex flex-wrap gap-4 items-center">
+            <div className="flex gap-4 items-center">
               <Link
                 to="/boka"
                 className="bg-foreground text-background px-10 py-5 rounded-full font-heading font-bold text-lg hover:scale-105 transition-transform"
@@ -58,22 +105,18 @@ function HomePage() {
 
           <div className="relative">
             <div className="absolute -top-10 -left-10 w-40 h-40 bg-accent/50 rounded-full blur-3xl" />
-            <div className="aspect-[4/5] bg-secondary rounded-[60px] overflow-hidden relative rotate-2 border-4 border-background shadow-2xl">
+            <div className="aspect-auto h-[75vh] max-h-200 bg-secondary rounded-[60px] overflow-hidden relative rotate-2 border-4 border-background shadow-2xl">
               <img
                 src={heroImage}
                 alt="Glad hund och katt hos Tassa in!"
                 className="w-full h-full object-cover"
                 loading="eager"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-foreground/30 to-transparent" />
+              <div className="absolute inset-0 bg-linear-to-t from-foreground/30 to-transparent" />
             </div>
-
-            {/* Floating sticker */}
             <div className="absolute -top-6 -right-4 w-28 h-28 bg-secondary rounded-full flex items-center justify-center text-center p-3 text-[10px] font-heading font-bold uppercase leading-tight rotate-12 border border-foreground/10 shadow-lg">
               15% rabatt<br />första besöket
             </div>
-
-            {/* Rotating badge */}
             <div className="absolute bottom-8 -left-8 w-32 h-32 bg-background rounded-full shadow-xl flex items-center justify-center -rotate-12 border-4 border-card">
               <svg viewBox="0 0 100 100" className="w-28 h-28 animate-spin-slow">
                 <defs>
