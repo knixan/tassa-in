@@ -1,23 +1,9 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "@fontsource-variable/outfit";
+@import "@fontsource-variable/figtree";
 
 @custom-variant dark (&:is(.dark *));
-
-@font-face {
-  font-family: 'Outfit';
-  font-style: normal;
-  font-weight: 300 800;
-  font-display: swap;
-  src: url(https://fonts.gstatic.com/s/outfit/v11/QGYyz_MVcBeNP4NjuGObqx1XmO1I4e.woff2) format('woff2');
-}
-
-@font-face {
-  font-family: 'Figtree';
-  font-style: normal;
-  font-weight: 300 700;
-  font-display: swap;
-  src: url(https://fonts.gstatic.com/s/figtree/v7/_Xmz-HUzqDCFdgfY2vZS4O5JmtiV.woff2) format('woff2');
-}
 
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
