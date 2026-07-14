@@ -1,7 +1,12 @@
 @import "tailwindcss";
 @import "tw-animate-css";
-@import "@fontsource-variable/outfit";
-@import "@fontsource-variable/figtree";
+@import "@fontsource/dm-serif-display/400.css";
+@import "@fontsource/dm-serif-display/400-italic.css";
+@import "@fontsource/poppins/400.css";
+@import "@fontsource/poppins/500.css";
+@import "@fontsource/poppins/600.css";
+@import "@fontsource/poppins/700.css";
+@import "@fontsource/allura/400.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -50,33 +55,35 @@
   --color-sidebar-ring: var(--sidebar-ring);
   --font-heading: var(--font-family-heading);
   --font-body: var(--font-family-body);
+  --font-decorative: var(--font-family-decorative);
 }
 
 :root {
   --radius: 0.75rem;
-  --font-family-heading: 'Outfit', sans-serif;
-  --font-family-body: 'Figtree', sans-serif;
-  --background: oklch(0.98 0.005 80);
-  --foreground: oklch(0.25 0.02 60);
-  --card: oklch(0.97 0.008 75);
-  --card-foreground: oklch(0.25 0.02 60);
-  --popover: oklch(0.98 0.005 80);
-  --popover-foreground: oklch(0.25 0.02 60);
-  --primary: oklch(0.45 0.06 60);
-  --primary-foreground: oklch(0.98 0.005 80);
-  --secondary: oklch(0.94 0.015 75);
-  --secondary-foreground: oklch(0.35 0.04 60);
-  --muted: oklch(0.94 0.012 80);
-  --muted-foreground: oklch(0.55 0.03 60);
-  --accent: oklch(0.80 0.06 80);
-  --accent-foreground: oklch(0.30 0.04 60);
-  --warm: oklch(0.60 0.08 55);
-  --warm-foreground: oklch(0.98 0.005 80);
+  --font-family-heading: 'DM Serif Display', serif;
+  --font-family-body: 'Poppins', sans-serif;
+  --font-family-decorative: 'Allura', cursive;
+  --background: #F6EDE2;
+  --foreground: #4B5437;
+  --card: #F4E5D7;
+  --card-foreground: #4B5437;
+  --popover: #F6EDE2;
+  --popover-foreground: #4B5437;
+  --primary: #4B5437;
+  --primary-foreground: #F6EDE2;
+  --secondary: #DAD6C1;
+  --secondary-foreground: #4B5437;
+  --muted: #F4E5D7;
+  --muted-foreground: #7C7F63;
+  --accent: #DAD6C1;
+  --accent-foreground: #4B5437;
+  --warm: #DAD6C1;
+  --warm-foreground: #4B5437;
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.98 0.005 80);
-  --border: oklch(0.90 0.015 75);
-  --input: oklch(0.90 0.015 75);
-  --ring: oklch(0.45 0.06 60);
+  --border: #DAD6C1;
+  --input: #DAD6C1;
+  --ring: #4B5437;
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);

@@ -15,32 +15,35 @@ export function Navbar() {
   const location = useLocation();
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-background/80 backdrop-blur-md">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+    <header className="sticky top-0 z-50 w-full bg-background">
+      <div className="mx-auto flex h-24 max-w-7xl items-center justify-between px-6 lg:px-8">
         <Link to="/" className="flex items-center gap-2 group">
-          <PawPrint className="h-7 w-7 text-primary transition-transform group-hover:rotate-12" />
-          <span className="font-heading text-xl font-bold text-foreground tracking-tight">
+          <PawPrint className="h-8 w-8 text-primary transition-transform group-hover:rotate-12" />
+          <span className="font-decorative text-4xl text-primary leading-none pt-2">
             Tassa in!
           </span>
         </Link>
 
         {/* Desktop nav */}
-        <nav className="hidden md:flex items-center gap-1">
-          {navLinks.map((link) => (
+        <nav className="hidden md:flex items-center gap-8">
+          {navLinks.slice(0, 3).map((link) => (
             <Link
               key={link.to}
               to={link.to}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              className={`text-base font-semibold transition-colors ${
                 location.pathname === link.to
-                  ? "bg-secondary text-foreground"
-                  : "text-muted-foreground hover:text-foreground hover:bg-secondary/60"
+                  ? "text-primary"
+                  : "text-foreground/80 hover:text-primary"
               }`}
             >
               {link.label}
             </Link>
           ))}
-          <Button asChild size="default" variant="default" className="ml-3">
-            <Link to="/boka">Boka nu</Link>
+          <Button asChild size="lg" variant="default" className="h-auto rounded-full px-6 py-3.5 gap-2 text-base font-semibold">
+            <Link to="/boka">
+              Boka tid nu!
+              <PawPrint className="h-4 w-4" />
+            </Link>
           </Button>
         </nav>
 
@@ -50,7 +53,7 @@ export function Navbar() {
           onClick={() => setOpen(!open)}
           aria-label="Toggle menu"
         >
-          {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          {open ? <X className="h-6 w-6 text-primary" /> : <Menu className="h-6 w-6 text-primary" />}
         </button>
       </div>
 
@@ -62,10 +65,10 @@ export function Navbar() {
               key={link.to}
               to={link.to}
               onClick={() => setOpen(false)}
-              className={`block px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+              className={`block px-4 py-2.5 rounded-lg text-sm font-semibold transition-colors ${
                 location.pathname === link.to
-                  ? "bg-secondary text-foreground"
-                  : "text-muted-foreground hover:text-foreground hover:bg-secondary/60"
+                  ? "bg-secondary text-primary"
+                  : "text-foreground/80 hover:text-primary hover:bg-secondary/60"
               }`}
             >
               {link.label}

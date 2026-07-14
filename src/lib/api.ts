@@ -25,6 +25,12 @@ export type BookingResponse = {
   createdAt: string;
 };
 
+export type AdminUser = {
+  id: string;
+  email: string;
+  fullName: string;
+};
+
 export type AuthResponse = {
   token: string;
   email: string;
@@ -105,6 +111,22 @@ export const api = {
 
     deleteBooking: (id: number) =>
       request<void>(`/api/admin/bookings/${id}`, {
+        method: "DELETE",
+        headers: authHeaders(),
+      }),
+
+    getUsers: () =>
+      request<AdminUser[]>("/api/admin/users", { headers: authHeaders() }),
+
+    createUser: (data: { email: string; fullName: string; password: string }) =>
+      request<AdminUser>("/api/admin/users", {
+        method: "POST",
+        body: JSON.stringify(data),
+        headers: authHeaders(),
+      }),
+
+    deleteUser: (id: string) =>
+      request<void>(`/api/admin/users/${id}`, {
         method: "DELETE",
         headers: authHeaders(),
       }),
