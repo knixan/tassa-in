@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
+import type { z } from "zod";
 import {
   format,
   startOfMonth,
@@ -21,17 +21,30 @@ import { ChevronLeft, ChevronRight, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { api, type AvailableSlot } from "@/lib/api";
+import { bookingSchema } from "@/lib/schemas";
 
-const contactSchema = z.object({
-  ownerName: z.string().min(2, "Ange ditt namn"),
-  ownerEmail: z.string().email("Ogiltig e-postadress"),
-  ownerPhone: z
-    .string()
-    .min(8, "Ange telefonnummer")
-    .regex(/^[0-9\s\-+()]+$/, "Ogiltigt telefonnummer"),
-});
-type ContactData = z.infer<typeof contactSchema>;
+const contactSchema = bookingSchema.omit({ date: true, startTime: true });
+type ContactInput = z.input<typeof contactSchema>;
+type ContactOutput = z.output<typeof contactSchema>;
+
+const SERVICE_TYPES = [
+  "Bad & Tvätt",
+  "Klippning",
+  "Pälsvård",
+  "Kloklippning",
+  "Tassbehandling",
+  "VIP-paket",
+] as const;
+const PET_TYPES = ["Hund", "Katt"] as const;
 
 const DAY_HEADERS = ["Må", "Ti", "On", "To", "Fr", "Lö", "Sö"];
 const today = startOfDay(new Date());
@@ -53,8 +66,12 @@ export function BookingCalendar() {
     register,
     handleSubmit,
     reset,
+    control,
     formState: { errors, isSubmitting },
-  } = useForm<ContactData>({ resolver: zodResolver(contactSchema) });
+  } = useForm<ContactInput, unknown, ContactOutput>({
+    resolver: zodResolver(contactSchema),
+    defaultValues: { petBreed: "", message: "" },
+  });
 
   useEffect(() => {
     if (!selectedDate) return;
@@ -68,7 +85,7 @@ export function BookingCalendar() {
       .finally(() => setLoadingSlots(false));
   }, [selectedDate]);
 
-  const onSubmit = async (data: ContactData) => {
+  const onSubmit = async (data: ContactOutput) => {
     if (!selectedDate || !selectedTime) return;
     setSubmitError("");
     try {
@@ -78,6 +95,11 @@ export function BookingCalendar() {
         ownerName: data.ownerName,
         ownerEmail: data.ownerEmail,
         ownerPhone: data.ownerPhone,
+        serviceType: data.serviceType,
+        petName: data.petName,
+        petType: data.petType,
+        petBreed: data.petBreed,
+        message: data.message,
       });
       setSubmitted(true);
     } catch (err) {
@@ -250,6 +272,85 @@ export function BookingCalendar() {
               </div>
 
               <div className="space-y-1.5">
+                <Label htmlFor="cal-service">Tjänst</Label>
+                <Controller
+                  name="serviceType"
+                  control={control}
+                  render={({ field }) => (
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger id="cal-service" className="w-full">
+                        <SelectValue placeholder="Välj en tjänst" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {SERVICE_TYPES.map((s) => (
+                          <SelectItem key={s} value={s}>
+                            {s}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+                {errors.serviceType && (
+                  <p className="text-xs text-destructive">
+                    {errors.serviceType.message}
+                  </p>
+                )}
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label htmlFor="cal-pet-name">Husdjurets namn</Label>
+                  <Input
+                    id="cal-pet-name"
+                    placeholder="Bella"
+                    {...register("petName")}
+                  />
+                  {errors.petName && (
+                    <p className="text-xs text-destructive">
+                      {errors.petName.message}
+                    </p>
+                  )}
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="cal-pet-type">Djurtyp</Label>
+                  <Controller
+                    name="petType"
+                    control={control}
+                    render={({ field }) => (
+                      <Select value={field.value} onValueChange={field.onChange}>
+                        <SelectTrigger id="cal-pet-type" className="w-full">
+                          <SelectValue placeholder="Välj" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {PET_TYPES.map((t) => (
+                            <SelectItem key={t} value={t}>
+                              {t}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                  {errors.petType && (
+                    <p className="text-xs text-destructive">
+                      {errors.petType.message}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="cal-pet-breed">Ras (valfritt)</Label>
+                <Input
+                  id="cal-pet-breed"
+                  placeholder="T.ex. Labrador"
+                  {...register("petBreed")}
+                />
+              </div>
+
+              <div className="space-y-1.5">
                 <Label htmlFor="cal-name">Namn</Label>
                 <Input
                   id="cal-name"
@@ -294,6 +395,15 @@ export function BookingCalendar() {
                     {errors.ownerPhone.message}
                   </p>
                 )}
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="cal-message">Meddelande (valfritt)</Label>
+                <Textarea
+                  id="cal-message"
+                  placeholder="Övrig information om ditt husdjur eller önskemål…"
+                  {...register("message")}
+                />
               </div>
 
               {submitError && (
