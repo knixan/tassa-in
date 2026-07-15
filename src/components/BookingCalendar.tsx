@@ -62,6 +62,17 @@ export function BookingCalendar() {
   const [submitted, setSubmitted] = useState(false);
   const [submitError, setSubmitError] = useState("");
 
+  // Reset the time/slot selection whenever a new date is picked. Done during
+  // render (React's recommended pattern) rather than in the effect below, so
+  // it doesn't cost an extra commit before the slots fetch even starts.
+  const [prevSelectedDate, setPrevSelectedDate] = useState(selectedDate);
+  if (selectedDate !== prevSelectedDate) {
+    setPrevSelectedDate(selectedDate);
+    setSelectedTime(null);
+    setSlots([]);
+    setLoadingSlots(selectedDate !== null);
+  }
+
   const {
     register,
     handleSubmit,
@@ -75,9 +86,6 @@ export function BookingCalendar() {
 
   useEffect(() => {
     if (!selectedDate) return;
-    setSelectedTime(null);
-    setSlots([]);
-    setLoadingSlots(true);
     api
       .getSlots(toDateStr(selectedDate))
       .then((d) => setSlots(d.slots))
