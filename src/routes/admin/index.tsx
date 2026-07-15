@@ -9,7 +9,7 @@ import { LogIn, CalendarDays, Trash2, LogOut, RefreshCw, UserPlus, Users } from 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { api, type BookingResponse, type AdminUser } from "@/lib/api";
+import { api, UNAUTHORIZED_EVENT, type BookingResponse, type AdminUser } from "@/lib/api";
 import { loginSchema, type LoginFormData } from "@/lib/schemas";
 
 const registerAdminSchema = z.object({
@@ -27,6 +27,17 @@ export const Route = createFileRoute("/admin/")({
 function AdminPage() {
   const token = localStorage.getItem("admin_token");
   const [isLoggedIn, setIsLoggedIn] = useState(!!token);
+
+  // Any authenticated request that comes back 401 (expired/invalid token)
+  // drops the whole admin UI back to the login screen, regardless of which
+  // tab triggered it - see api.ts's request().
+  useEffect(() => {
+    function handleUnauthorized() {
+      setIsLoggedIn(false);
+    }
+    window.addEventListener(UNAUTHORIZED_EVENT, handleUnauthorized);
+    return () => window.removeEventListener(UNAUTHORIZED_EVENT, handleUnauthorized);
+  }, []);
 
   if (!isLoggedIn) {
     return <LoginForm onSuccess={() => setIsLoggedIn(true)} />;
@@ -162,17 +173,13 @@ function BookingDashboard({ onLogout }: { onLogout: () => void }) {
           </button>
         </div>
 
-        {tab === "bookings" ? (
-          <BookingsTab onUnauthorized={handleLogout} />
-        ) : (
-          <AdminsTab />
-        )}
+        {tab === "bookings" ? <BookingsTab /> : <AdminsTab />}
       </div>
     </div>
   );
 }
 
-function BookingsTab({ onUnauthorized }: { onUnauthorized: () => void }) {
+function BookingsTab() {
   const [bookings, setBookings] = useState<BookingResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -184,16 +191,15 @@ function BookingsTab({ onUnauthorized }: { onUnauthorized: () => void }) {
     try {
       const data = await api.admin.getBookings(filterDate || undefined);
       setBookings(data);
-    } catch (err) {
-      if (err instanceof Error && err.message.includes("401")) {
-        onUnauthorized();
-        return;
-      }
+    } catch {
+      // A 401 here already triggers the global admin:unauthorized handler
+      // (see api.ts), which drops the whole dashboard back to the login
+      // screen - so this message only ever shows for non-auth failures.
       setError("Kunde inte hämta bokningar.");
     } finally {
       setLoading(false);
     }
-  }, [filterDate, onUnauthorized]);
+  }, [filterDate]);
 
   useEffect(() => { fetchBookings(); }, [fetchBookings]);
 

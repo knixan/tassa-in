@@ -38,18 +38,32 @@ export type AuthResponse = {
   role: string;
 };
 
+/** Fired whenever an authenticated admin request comes back 401 (expired/invalid token). */
+export const UNAUTHORIZED_EVENT = "admin:unauthorized";
+
+// Empty by default, so local dev keeps hitting relative /api/... paths
+// (proxied to the backend by vite.config.ts). Set VITE_API_URL when the
+// frontend and backend are deployed to different origins (e.g. Vercel +
+// Railway/Render) - the backend's Cors:AllowedOrigins must then include the
+// frontend's origin, since this becomes a genuine cross-origin request.
+const API_BASE = import.meta.env.VITE_API_URL ?? "";
+
 async function request<T>(
   path: string,
   options?: RequestInit
 ): Promise<T> {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 8000);
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    ...(options?.headers as Record<string, string> | undefined),
+  };
 
   let res: Response;
   try {
-    res = await fetch(path, {
-      headers: { "Content-Type": "application/json", ...options?.headers },
+    res = await fetch(`${API_BASE}${path}`, {
       ...options,
+      headers,
       signal: controller.signal,
     });
   } catch (err) {
@@ -63,6 +77,14 @@ async function request<T>(
 
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
+    // A 401 on an authenticated request means the token expired/is invalid -
+    // clear it and let the admin UI drop back to the login screen, in one place
+    // instead of every call site guessing at the error message.
+    if (res.status === 401 && "Authorization" in headers) {
+      localStorage.removeItem("admin_token");
+      localStorage.removeItem("admin_name");
+      window.dispatchEvent(new Event(UNAUTHORIZED_EVENT));
+    }
     throw new Error(body?.message ?? `HTTP ${res.status}`);
   }
 

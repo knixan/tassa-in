@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { z } from "zod";
@@ -84,14 +84,18 @@ export function BookingCalendar() {
     defaultValues: { petBreed: "", message: "" },
   });
 
-  useEffect(() => {
-    if (!selectedDate) return;
-    api
-      .getSlots(toDateStr(selectedDate))
+  const fetchSlots = useCallback((date: Date) => {
+    return api
+      .getSlots(toDateStr(date))
       .then((d) => setSlots(d.slots))
       .catch(() => setSlots([]))
       .finally(() => setLoadingSlots(false));
-  }, [selectedDate]);
+  }, []);
+
+  useEffect(() => {
+    if (!selectedDate) return;
+    fetchSlots(selectedDate);
+  }, [selectedDate, fetchSlots]);
 
   const onSubmit = async (data: ContactOutput) => {
     if (!selectedDate || !selectedTime) return;
@@ -112,6 +116,12 @@ export function BookingCalendar() {
       setSubmitted(true);
     } catch (err) {
       setSubmitError(err instanceof Error ? err.message : "Något gick fel.");
+      // The slot may have just been taken by someone else (409) - refresh
+      // availability and send the user back to the time picker instead of
+      // letting them resubmit against a now-stale slot.
+      setSelectedTime(null);
+      setLoadingSlots(true);
+      fetchSlots(selectedDate);
     }
   };
 
