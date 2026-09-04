@@ -139,13 +139,13 @@ Redigera `MyApi/appsettings.json`:
   },
   "Seed": {
     "AdminEmail": "admin@tassain.se",
-    "AdminPassword": "ByT-DETTA-losenord!",
+    "AdminPassword": "ByT-DETTA-losenord1!",
     "AdminName": "Admin"
   }
 }
 ```
 
-`Cors:AllowedOrigins` styr vilka origins API:et tar emot anrop från — peka på din produktionsfrontend där. `Seed:*` är valfritt i Development (faller tillbaka på `admin@tassain.se` / `Admin1234!`), men **måste** anges utanför Development — appen vägrar starta annars, för att inte tyst skapa ett gissningsbart adminkonto.
+`Jwt:Key` måste vara en kryptografiskt slumpad sträng på minst 32 tecken (t.ex. `openssl rand -base64 32`) — appen vägrar starta annars, oavsett miljö. `Cors:AllowedOrigins` styr vilka origins API:et tar emot anrop från — peka på din produktionsfrontend där. `Seed:*` är valfritt i Development (faller tillbaka på `admin@tassain.se` / `DevAdmin1234!`), men **måste** anges utanför Development — appen vägrar starta annars, för att inte tyst skapa ett gissningsbart adminkonto.
 
 ### 2. Kör EF Core-migrationer
 
@@ -195,7 +195,8 @@ Cors__AllowedOrigins__0=https://ditt-vercel-projekt.vercel.app
 
 ## Säkerhet
 
-- **JWT-auth** via ASP.NET Core Identity, 8 timmars livslängd.
+- **JWT-auth** via ASP.NET Core Identity, 8 timmars livslängd. `Jwt:Key` valideras vid uppstart (minst 32 tecken) — appen vägrar starta utan en riktig, slumpad signeringsnyckel.
+- **Lösenordspolicy**: minst 12 tecken, kräver versal, siffra och specialtecken (`Program.cs`).
 - **Kontolåsning**: 5 felaktiga inloggningsförsök låser kontot i 15 minuter (`AuthController.Login`).
 - **CSP**: `index.html` får en `Content-Security-Policy`-tagg injicerad av en Vite-plugin i `vite.config.ts` — strikt (`script-src 'self'`) i produktionsbygget, med `'unsafe-eval'` bara i dev där Vites beroende-förbuntning kräver det. Syftar till att begränsa skadan om en XSS-lucka någonsin uppstår, eftersom admin-JWT:t ligger i `localStorage`.
 - **Granskningslogg**: skapande/borttagning av adminkonton loggas till `AuditLog`-tabellen (vem, vad, när) och kan läsas via `GET /api/admin/audit-log`.
