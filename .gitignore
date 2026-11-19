@@ -32,3 +32,8 @@ MyApi/appsettings.Development.json
 # .NET build artifacts
 MyApi/bin/
 MyApi/obj/
+
+# Claude – privat lärande
+.claude/larande/
+.claude/skills/quiz/
+.claude/settings.local.json
