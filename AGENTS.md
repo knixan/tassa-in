@@ -217,7 +217,9 @@ GitHub Project 21 (`knixan`, "Tassa in!"): https://github.com/users/knixan/proje
 # Lista korten (id = PVTI_… används för att byta status)
 gh project item-list 21 --owner knixan --format json --limit 200
 
-# Nytt kort (item-add är ofarligt även om "Auto-add to project" redan lagt till det – samma id kommer tillbaka)
+# Nytt kort. "Auto-add to project" lägger ofta in issuen själv – då ger item-add
+# felet "Content already exists in this project". Slå i så fall upp id:t i
+# item-list (det kan ta några sekunder innan kortet syns där).
 gh issue create -R knixan/tassa-in --title "[Område] Titel" --body-file kort.md
 gh project item-add 21 --owner knixan --url <issue-url> --format json --jq .id
 
