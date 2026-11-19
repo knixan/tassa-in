@@ -151,8 +151,9 @@ Lägg inte till nya npm- eller NuGet-paket utan att säga varför. Föreslå hel
 4. **Det finns inga tester än.** Ändrar du luckor, kapacitet, tidszon eller behörighet – föreslå vilka tester som borde finnas (t.ex. xUnit för `BookingService` runt sommartidsbytet). Skapa inte testprojekt utan att fråga.
 5. Ändringar i UI: säg tydligt vad du **inte** har kunnat testa (t.ex. adminpanelen inloggad, mobil, mot riktig backend).
 6. README är uppdaterad om du ändrat endpoints, konfiguration, öppettider eller struktur.
-7. Du har skrivit ett commit-meddelande.
-8. Du har avslutat med ett "Lär dig"-block (se nedan), om uppgiften var större än en småfix.
+7. Kanban är uppdaterad (se nedan).
+8. Du har skrivit ett commit-meddelande.
+9. Du har avslutat med ett "Lär dig"-block (se nedan), om uppgiften var större än en småfix.
 
 ## Lärande
 
@@ -189,3 +190,40 @@ Användaren vill fräscha upp och fördjupa sina kunskaper medan hen bygger – 
 - `dotnet ef database drop`, `TRUNCATE`, `DELETE` utan `WHERE` och liknande kräver alltid uttryckligt godkännande från användaren i ett nytt meddelande.
 - Identity-tabellerna (`AspNetUsers`, `AspNetRoles` …) ändras via `AppUser` och Identity-konfigurationen, aldrig med rå SQL.
 - Tabellnamn i PostgreSQL är i PascalCase med citattecken (`"Bookings"`) – tänk på det i rå SQL.
+
+## Kanban
+
+GitHub Project 21 (`knixan`, "Tassa in!"): https://github.com/users/knixan/projects/21/views/1. Repo `knixan/tassa-in`.
+
+- Varje kort är en **issue** i repot som ligger i projektet. Titeln börjar med område i hakparentes: `[Setup]`, `[Backend]`, `[Databas]`, `[Auth]`, `[Säkerhet]`, `[UI]`, `[Startsida]`, `[Bokning]`, `[Admin]`, `[Drift]`, `[Test]` … Återanvänd ett befintligt område om det passar.
+- **Kolumner (Status):** _Backlog_ (nya kort), _Later_ (inte nu), _In progress_, _In review_ (klart i koden men väntar på att användaren testar/committar), _Done_.
+- **Priority** (`P0` brådskande/säkerhet, `P1` nästa, `P2` sen) och **Size** (`XS`–`XL`) sätts på nya kort. Är du osäker – föreslå och låt användaren bestämma.
+- **Börja en uppgift:** ber användaren dig jobba på ett kort – läs issuen (`gh issue view <nr>`) och flytta kortet till _In progress_.
+- **När du blir klar:** flytta kortet till _In review_ om allt i det är gjort (användaren testar och committar), annars låt det stå kvar och skriv en kommentar på issuen om vad som återstår. Skapa nya kort för det som blir kvar eller som du upptäcker (t.ex. buggar, säkerhetsluckor).
+- **Commit-meddelandet** nämner issuen: `Closes #<nr>` om kortet är klart, annars `Del av #<nr>`. När användaren pushar till `master` stänger GitHub issuen och projektet flyttar kortet till _Done_ (workflow "Item closed").
+- Ändringar i backend-repot (`MyApi`, se ovan) stänger inte issues här – nämn i stället issuen i en kommentar.
+- Skriv issuens body i en fil i scratchpad och använd `--body-file` (långa heredocs går sönder).
+- Flytta inte kort, skapa inte kort och stäng inte issues utan att användaren har bett om kanban-uppdatering eller att det ingår i uppgiften. Säg vilka kort du har ändrat.
+- `/kanban` (`.claude/skills/kanban`) visar tavlan och hjälper till att flytta och skapa kort.
+
+| Vad         | ID                                                                                                                                    |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| Projekt     | `PVT_kwHODHG13M4BsYgW`                                                                                                                |
+| Status-fält | `PVTSSF_lAHODHG13M4BsYgWzhqm6OQ` – Backlog `f75ad846`, Later `61e4505c`, In progress `47fc9ee4`, In review `df73e18b`, Done `98236657` |
+| Priority    | `PVTSSF_lAHODHG13M4BsYgWzhqm6bU` – P0 `79628723`, P1 `0a877460`, P2 `da944a9c`                                                        |
+| Size        | `PVTSSF_lAHODHG13M4BsYgWzhqm6bc` – XS `6c6483d2`, S `f784b110`, M `7515a9f1`, L `817d0097`, XL `db339eb2`                             |
+
+```bash
+# Lista korten (id = PVTI_… används för att byta status)
+gh project item-list 21 --owner knixan --format json --limit 200
+
+# Nytt kort (item-add är ofarligt även om "Auto-add to project" redan lagt till det – samma id kommer tillbaka)
+gh issue create -R knixan/tassa-in --title "[Område] Titel" --body-file kort.md
+gh project item-add 21 --owner knixan --url <issue-url> --format json --jq .id
+
+# Sätt status (byt fält- och option-id för Priority/Size)
+gh project item-edit --project-id PVT_kwHODHG13M4BsYgW --id <item-id> \
+  --field-id PVTSSF_lAHODHG13M4BsYgWzhqm6OQ --single-select-option-id f75ad846
+```
+
+Att sätta status Done stänger issuen automatiskt (workflow "Auto-close issue"), och en stängd issue flyttas till Done ("Item closed"). Flytta därför bara till _Done_ när användaren ber om det – annars _In review_.
